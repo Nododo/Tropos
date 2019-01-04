@@ -1,9 +1,9 @@
-import UIKit
 import TroposCore
+import UIKit
 
 private enum SegueIdentifier: String {
     case privacyPolicy = "ShowWebViewController"
-    case acknowledgements = "ShowTextViewController"
+    case acknowledgements = "ShowAcknowledgementsViewController"
 
     init?(identifier: String?) {
         guard let identifier = identifier else { return nil }
@@ -41,22 +41,22 @@ class SettingsTableViewController: UITableViewController {
         super.viewDidLoad()
 
         settingsController.unitSystemChanged = { [weak self] unitSystem in
-          guard let indexPath = self?.indexPathForUnitSystem(unitSystem) else { return }
-          self?.tableView.checkCellAtIndexPath(indexPath)
+            guard let indexPath = self?.indexPathForUnitSystem(unitSystem) else { return }
+            self?.tableView.checkCellAtIndexPath(indexPath)
         }
 
         thoughtbotImageView.tintColor = .lightText
         thoughtbotImageView.image = thoughtbotImageView.image?.withRenderingMode(
-          .alwaysTemplate
+            .alwaysTemplate
         )
 
         resignActiveObservation = NotificationCenter.default.addObserver(
-          forName: .UIApplicationWillResignActive,
-          object: nil,
-          queue: nil
+            forName: .UIApplicationWillResignActive,
+            object: nil,
+            queue: nil
         ) { [weak self] _ in
-          guard let selectedIndexPath = self?.tableView.indexPathForSelectedRow else { return }
-          self?.tableView.deselectRow(at: selectedIndexPath, animated: true)
+            guard let selectedIndexPath = self?.tableView.indexPathForSelectedRow else { return }
+            self?.tableView.deselectRow(at: selectedIndexPath, animated: true)
         }
     }
 
@@ -76,23 +76,15 @@ class SettingsTableViewController: UITableViewController {
         case .privacyPolicy?:
             let webViewController = segue.destination as? WebViewController
             webViewController?.url = URL(string: "http://www.troposweather.com/privacy/")!
-        case .acknowledgements?:
-            let textViewController = segue.destination as? TextViewController
-            let fileURL = Bundle.main.url(
-              forResource: "Pods-Tropos-settings-metadata",
-              withExtension: "plist"
-            )
-            let parser = fileURL.flatMap { AcknowledgementsParser(fileURL: $0) }
-            textViewController?.text = parser?.displayString()
-        case nil:
+        default:
             break
         }
     }
 
     override func tableView(
-      _ tableView: UITableView,
-      didSelectRowAt
-      indexPath: IndexPath
+        _ tableView: UITableView,
+        didSelectRowAt
+        indexPath: IndexPath
     ) {
         switch (indexPath.section, indexPath.row) {
         case (Section.unitSystem.rawValue, _):
@@ -108,9 +100,9 @@ class SettingsTableViewController: UITableViewController {
     }
 
     override func tableView(
-      _ tableView: UITableView,
-      willDisplayHeaderView view: UIView,
-      forSection section: Int
+        _ tableView: UITableView,
+        willDisplayHeaderView view: UIView,
+        forSection section: Int
     ) {
         if let headerView = view as? UITableViewHeaderFooterView {
             headerView.textLabel?.font = .defaultLightFont(size: 13)
@@ -119,8 +111,8 @@ class SettingsTableViewController: UITableViewController {
     }
 
     override func tableView(
-      _ tableView: UITableView,
-      titleForHeaderInSection section: Int
+        _ tableView: UITableView,
+        titleForHeaderInSection section: Int
     ) -> String? {
         switch section {
         case Section.about.rawValue: return appVersionString()
@@ -131,14 +123,13 @@ class SettingsTableViewController: UITableViewController {
     private func appVersionString() -> String? {
         let bundle = Bundle.main
         guard let infoDictionary = bundle.infoDictionary as? [String: String] else {
-          return .none
+            return .none
         }
 
         guard let version = infoDictionary["CFBundleShortVersionString"] else { return .none }
         guard let buildNumber = infoDictionary["CFBundleVersion"] else { return .none }
 
         return "Tropos \(version) (\(buildNumber))".uppercased()
-
     }
 
     private func selectUnitSystemAtIndexPath(_ indexPath: IndexPath) {
